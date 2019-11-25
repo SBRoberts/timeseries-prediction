@@ -1,4 +1,5 @@
 import React from "react";
+import io from 'socket.io-client'
 
 export const welcomeMessage = () => {
   console.info(
@@ -16,6 +17,11 @@ export const welcomeMessage = () => {
 
 const App = () => {
   welcomeMessage();
+  const socket = io.connect('http://localhost:5000')
+  socket.on("default", function(data) {
+    console.log(data);
+    // socket.emit("my other event", { my: "data" });
+  });
   return <div> Hello! </div>;
 };
 
