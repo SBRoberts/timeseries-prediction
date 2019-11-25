@@ -7,7 +7,9 @@
   "scripts": {
     "test": "jest",
     "start": "webpack-dev-server --open --hot --mode development",
-    "build": "webpack --mode production"
+    "server": "nodemon src/server",
+    "build": "webpack --mode production",
+    "develop" : "concurrently \" npm run server\" \"npm run start\""
   },
   "author": "Spencer Roberts",
   "license": "ISC",
