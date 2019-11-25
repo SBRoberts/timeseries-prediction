@@ -3,7 +3,8 @@ var server = require("http").Server(app);
 var io = require("socket.io")(server);
 
 server.listen(5000);
-// WARNING: app.listen(80) will NOT work here!
+
+const environment =  process.env.NODE_ENV
 
 app.get("/", function(req, res) {
   res.send('working');

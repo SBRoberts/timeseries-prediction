@@ -1,5 +1,6 @@
 import React from "react";
 import io from 'socket.io-client'
+import Search from './components/Search'
 
 export const welcomeMessage = () => {
   console.info(
@@ -15,6 +16,9 @@ export const welcomeMessage = () => {
   );
 };
 
+// https://api.iextrading.com/1.0
+// https://cloud.iexapis.com/
+
 const App = () => {
   welcomeMessage();
   const socket = io.connect('http://localhost:5000')
@@ -22,7 +26,10 @@ const App = () => {
     console.log(data);
     // socket.emit("my other event", { my: "data" });
   });
-  return <div> Hello! </div>;
+  return(
+  <div>
+    <Search />
+  </div>)
 };
 
 export default App
