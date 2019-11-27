@@ -5,6 +5,15 @@ import MatchedCompanies from "./MatchedCompanies";
 import RequestControls from "./RequestControls";
 import RangeSlider from "./RangeSlider";
 
+const stockHistoryRanges = {
+  "3 Months": "3m",
+  "6 Months": "6m",
+  "Year to Date": "YTD",
+  "1 Years": "1y",
+  "2 Years": "2y",
+  "5 Years": "5y"
+};
+
 const Search = () => {
   const [companyList, setCompanyList] = useState(null);
   const [searchMatches, setSearchMatches] = useState([]);
@@ -81,7 +90,11 @@ const Search = () => {
   const getSymbolHistory = async e => {
     e.preventDefault();
     try {
-      const response = await symbolHistoryGetRequest(currentSearch, "2y");
+      console.log("selectedRange", selectedRange);
+      const response = await symbolHistoryGetRequest(
+        currentSearch,
+        selectedRange
+      );
       setStockHistory(response);
     } catch (error) {
       !!searchMatches && retrySymbolHistory(searchMatches[0]);
@@ -117,15 +130,6 @@ const Search = () => {
   const selectCompany = company => {
     setCurrentSearch(company.symbol);
     searchInputEl.current.focus();
-  };
-
-  const stockHistoryRanges = {
-    "3 Months": "3m",
-    "6 Months": "6m",
-    "Year to Date": "YTD",
-    "1 Years": "1y",
-    "2 Years": "2y",
-    "5 Years": "5y"
   };
 
   return (

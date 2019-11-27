@@ -53,7 +53,7 @@ const RangeSlider = ({ options, emitCurrentOption }: Props) => {
   const [currentValue, setCurrentValue] = useState(0);
   const rangeMax = Object.keys(options).length - 1;
   const rangeLabels = Object.keys(options);
-  const rangeValues = Object.keys(options);
+  const rangeValues = Object.values(options);
 
   useEffect(() => {
     emitCurrentOption(rangeValues[currentValue]);
