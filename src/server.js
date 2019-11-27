@@ -1,12 +1,22 @@
-var app = require("express")();
-var server = require("http").Server(app);
-var io = require("socket.io")(server);
+const express = require("express");
+const app = express();
+const server = require("http").Server(app);
+const io = require("socket.io")(server);
 
 server.listen(5000);
-// WARNING: app.listen(80) will NOT work here!
+
+const environment = process.env.NODE_ENV;
+
+app.use(express.json());
 
 app.get("/", function(req, res) {
-  res.send('working');
+  res.send("working");
+});
+
+app.post("/forecast", (req, res) => {
+  console.log("req", req.body);
+  io.emit("forecast", req.body);
+  // console.log('res', res)
 });
 
 io.on("connection", function(socket) {
