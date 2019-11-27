@@ -15,11 +15,14 @@
   "license": "ISC",
   "dependencies": {
     "@babel/polyfill": "^7.4.3",
+    "@types/styled-components": "^4.4.0",
+    "axios": "^0.19.0",
     "concurrently": "^5.0.0",
     "dom-events": "^0.1.1",
     "express": "^4.17.1",
     "socket.io": "^2.3.0",
-    "socket.io-client": "^2.3.0"
+    "socket.io-client": "^2.3.0",
+    "styled-components": "^4.4.1"
   },
   "devDependencies": {
     "@babel/core": "^7.7.4",

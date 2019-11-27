@@ -1,20 +1,24 @@
-import React, { useState, useEffect, useRef } from 'react'
-import axios from 'axios'
+import React, { useState, useEffect, useRef } from "react";
+import axios from "axios";
 
-import Matches from './MatchedCompanies'
-import MatchedCompanies from './MatchedCompanies'
+import MatchedCompanies from "./MatchedCompanies";
+import RequestControls from "./RequestControls";
+import RangeSlider from "./RangeSlider";
 
 const Search = () => {
-  const [companyList, setCompanyList] = useState(null)
-  const [searchMatches, setSearchMatches] = useState([])
-  const [currentSearch, setCurrentSearch] = useState([])
-  const [stockHistory, setStockHistory] = useState(null)
-  const [timeseriesData, setTimeseriesData] = useState(null)
-  const searchInputEl = useRef(null)
+  const [companyList, setCompanyList] = useState(null);
+  const [searchMatches, setSearchMatches] = useState([]);
+  const [currentSearch, setCurrentSearch] = useState([]);
+  const [stockHistory, setStockHistory] = useState(null);
+  const [timeseriesData, setTimeseriesData] = useState(null);
+  const [selectedRange, setSelectedRange] = useState(null);
+  const searchInputEl = useRef(null);
 
   // Base IEX Stock API config variables - public facing
-  const iexBase = 'https://cloud.iexapis.com/v1'
-  const iexPublicKey = 'pk_5f23b767a4374ec393a736d3f05fe351'
+  const iexBase = "https://cloud.iexapis.com/v1";
+  const iexPublicKey = "pk_5f23b767a4374ec393a736d3f05fe351";
+
+  const webhookUrl = "https://835fc26c.ngrok.io/forecast";
 
   // Fetch full list of available companies on mount
   useEffect(() => {
@@ -22,104 +26,116 @@ const Search = () => {
       try {
         const fetchedCompanyListResponse = await axios.get(
           `${iexBase}/ref-data/symbols/?token=${iexPublicKey}`
-        )
+        );
         if (fetchedCompanyListResponse.status !== 200) {
-          throw Error('no bueno')
+          throw Error("no bueno");
         }
 
-        setCompanyList(fetchedCompanyListResponse.data)
+        setCompanyList(fetchedCompanyListResponse.data);
       } catch (error) {
-        console.error(error)
+        console.error(error);
       }
-    }
-    fetchCompanyList()
-  }, [])
+    };
+    fetchCompanyList();
+  }, []);
 
   useEffect(() => {
     if (!!stockHistory) {
       const formattedTimeseries = JSON.stringify({
         data: stockHistory.data.map(pointInTime => ({
           timestamp: timestampToUnix(pointInTime.date),
-          value: pointInTime.close,
+          value: pointInTime.close
         })),
-        callback: 'https://789f3487.ngrok.io/forecast',
-      })
-      setTimeseriesData(formattedTimeseries)
-      requestForecast(formattedTimeseries)
+        callback: webhookUrl
+      });
+      setTimeseriesData(formattedTimeseries);
+      requestForecast(formattedTimeseries);
     }
-  }, [stockHistory])
+  }, [stockHistory]);
 
   const timestampToUnix = (timestamp: string) =>
-    parseInt((new Date(timestamp).getTime() / 1000).toFixed(0))
+    parseInt((new Date(timestamp).getTime() / 1000).toFixed(0));
 
   // Filter total list of companies by name/symbol based on search input
   const changeHandler = e => {
-    const { value } = e.target
-    const formattedValue = value.toLowerCase()
+    const { value } = e.target;
+    const formattedValue = value.toLowerCase();
 
     const matches = companyList.filter(
       company =>
         company.name.toLowerCase().includes(formattedValue) ||
         company.symbol.toLowerCase().includes(formattedValue)
-    )
+    );
 
-    setCurrentSearch(formattedValue)
-    setSearchMatches(matches.slice(0, 10))
-  }
+    setCurrentSearch(formattedValue);
+    setSearchMatches(matches.slice(0, 10));
+  };
+
+  const symbolHistoryGetRequest = (symbol, range) => {
+    return axios.get(
+      `${iexBase}/stock/${symbol}/chart/${range}/?token=${iexPublicKey}`
+    );
+  };
 
   // Get Historical stock prices, given a symbol
   const getSymbolHistory = async e => {
-    e.preventDefault()
-    console.log(currentSearch)
+    e.preventDefault();
     try {
-      const response = await axios.get(
-        `${iexBase}/stock/${currentSearch}/chart/?token=${iexPublicKey}`
-      )
-
-      setStockHistory(response)
+      const response = await symbolHistoryGetRequest(currentSearch, "2y");
+      setStockHistory(response);
     } catch (error) {
-      !!searchMatches && retrySymbolHistory(searchMatches[0])
-      console.error(error)
+      !!searchMatches && retrySymbolHistory(searchMatches[0]);
+      console.error(error);
     }
-  }
+  };
 
   const retrySymbolHistory = async firstMatch => {
     try {
-      setCurrentSearch(firstMatch.symbol)
-      const response = await axios.get(
-        `${iexBase}/stock/${firstMatch.symbol}/chart/?token=${iexPublicKey}`
-      )
-      console.log(response)
-      setStockHistory(response)
+      setCurrentSearch(firstMatch.symbol);
+      const response = await symbolHistoryGetRequest(currentSearch, "2y");
+      setStockHistory(response);
     } catch (error) {
-      console.error(error)
+      console.error(error);
     }
-  }
+  };
 
   const requestForecast = async data => {
-    console.log('data', data)
     const response = await axios({
-      method: 'post',
-      url: 'https://api.unplu.gg/forecast',
+      method: "post",
+      url: "https://api.unplu.gg/forecast",
       headers: {
-        'x-access-token':
-          'c676b91f56bda95b6001d6f2da3a38d9fc222185a16f191362a1b111d524b0a1',
-        'Content-Type': 'application/json',
+        "x-access-token":
+          "c676b91f56bda95b6001d6f2da3a38d9fc222185a16f191362a1b111d524b0a1",
+        "Content-Type": "application/json"
       },
-      data,
-    })
-    console.log(response)
-    return response
-  }
+      data
+    });
+    return response;
+  };
 
   // Select company from <MatchedCompanies /> and set it as the current search.
   const selectCompany = company => {
-    setCurrentSearch(company.symbol)
-    searchInputEl.current.focus()
-  }
+    setCurrentSearch(company.symbol);
+    searchInputEl.current.focus();
+  };
+
+  const stockHistoryRanges = {
+    "3 Months": "3m",
+    "6 Months": "6m",
+    "Year to Date": "YTD",
+    "1 Years": "1y",
+    "2 Years": "2y",
+    "5 Years": "5y"
+  };
 
   return (
     <>
+      <RequestControls>
+        <RangeSlider
+          options={stockHistoryRanges}
+          emitCurrentOption={setSelectedRange}
+        />
+      </RequestControls>
       <form onSubmit={getSymbolHistory}>
         <input
           ref={searchInputEl}
@@ -131,7 +147,7 @@ const Search = () => {
       </form>
       <MatchedCompanies matches={searchMatches} selectCompany={selectCompany} />
     </>
-  )
-}
+  );
+};
 
-export default Search
+export default Search;
