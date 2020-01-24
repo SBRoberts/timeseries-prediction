@@ -1,17 +1,17 @@
-const path = require('path')
-const HtmlWebPackPlugin = require('html-webpack-plugin')
+const path = require("path");
+const HtmlWebPackPlugin = require("html-webpack-plugin");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 module.exports = {
-  entry: './src/index',
-  mode: 'development',
-  devtool: 'source-map',
+  entry: "./src/index.tsx",
+  mode: "development",
   resolve: {
     // Add '.ts' and '.tsx' as resolvable extensions.
-    extensions: ['.ts', '.tsx', '.js'],
+    extensions: [".ts", ".tsx", ".js"]
   },
   output: {
-    filename: 'app.js',
-    path: path.resolve(__dirname, 'dist'),
+    filename: "bundle.js",
+    path: path.resolve(__dirname, "dist")
   },
   module: {
     rules: [
@@ -19,43 +19,48 @@ module.exports = {
         test: /\.html$/,
         use: [
           {
-            loader: 'html-loader',
-          },
-        ],
+            loader: "html-loader"
+          }
+        ]
       },
       {
         test: /\.(ts|js)x?$/,
         exclude: /node_modules/,
         use: [
           {
-            loader: 'babel-loader',
+            loader: "babel-loader"
           },
           {
-            loader: 'ts-loader',
-          },
-        ],
+            loader: "ts-loader"
+          }
+        ]
       },
-      // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
       {
-        enforce: 'pre',
-        test: /\.js$/,
-        loader: 'source-map-loader',
-      },
-    ],
+        test: /\.(png|svg|jpg|gif)$/,
+        use: [
+          {
+            loader: "file-loader"
+          }
+        ]
+        // options: {}
+      }
+    ]
   },
   devServer: {
-    contentBase: path.join(__dirname, 'dist'),
+    contentBase: path.join(__dirname, "dist"),
     compress: true,
-    port: 9000,
+    port: 9000
   },
   plugins: [
     new HtmlWebPackPlugin({
-      template: './src/index.html',
-      filename: 'index.html',
-    }),
-  ],
+      template: "./src/index.html",
+      filename: "index.html",
+      inject: false
+    })
+    // new CopyWebpackPlugin([{ from: "./src/assets", to: "./assets" }])
+  ]
   // externals: {
   //   react: 'React',
   //   'react-dom': 'ReactDOM',
   // },
-}
+};
