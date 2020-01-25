@@ -1,10 +1,16 @@
-import React from 'react'
-import io from 'socket.io-client'
-import Search from './Search'
+import React, { useEffect, useState } from "react";
+import io from "socket.io-client";
+import styled from "styled-components";
+import Search from "./Search";
+import LineChart from "./LineChart";
+import SearchDetails from "./SearchDetails";
+import CrystalBallLoader, { loadStateTypes } from "./CrystalBallLoader";
+
+import { timestampToNumberedDate } from "../utils/formatTime";
 
 export const welcomeMessage = () => {
   console.info(
-    '%cspen.io%c✌️',
+    "%cspen.io%c✌️",
     `font-size: 30px; color: white; background: mediumspringgreen; padding: 10px; text-align: center; width: 100%;  line-height: 100px; padding-bottom: 5px;
     font-family: 'Bungee Shade', helvetica, sans-serif; @font-face {
       font-family: 'Bungee Shade';
@@ -12,30 +18,81 @@ export const welcomeMessage = () => {
       url('https://fonts.googleapis.com/css?family=Bungee+Shade') format('woff'), /* Pretty Modern Browsers */
       url('https://fonts.googleapis.com/css?family=Bungee+Shade')  format('truetype'), /* Safari, Android, iOS */
     };`,
-    'font-size: 40px; color: white; background: mediumspringgreen; padding: 10px; text-align: center; width: 100%; line-height: 95px; margin: 20px 0;'
-  )
-}
+    "font-size: 40px; color: white; background: mediumspringgreen; padding: 10px; text-align: center; width: 100%; line-height: 95px; margin: 20px 0;"
+  );
+};
 
-// https://api.iextrading.com/1.0
-// https://cloud.iexapis.com/
+const socket = io.connect("http://localhost:5000/");
+
+socket.on("connection", (data: any) => {
+  console.log("connection", data);
+});
+
+const Wrapper = styled.div`
+  width: 90vw;
+  margin: 0 auto;
+`;
 
 const App = () => {
-  welcomeMessage()
-  const socket = io.connect('http://localhost:5000')
-  socket.on('default', function(data: any) {
-    console.log(data)
-    // socket.emit("my other event", { my: "data" });
-  })
-  socket.on('forecast', function(data: any) {
-    console.log('forecast', data)
-    // socket.emit("my other event", { my: "data" });
-  })
+  const [webhookUrl, setWebhookUrl] = useState("");
+  const [currentSearchId, setCurrentSearchId] = useState("");
+  const [chartStockData, setChartStockData] = useState([]);
+  const [loadState, setLoadState] = useState<loadStateTypes>("idle");
+  const [searchDetails, setSearchDetails] = useState({
+    companyName: "",
+    companySymbol: "",
+    searchRange: ""
+  });
+
+  useEffect(() => {
+    welcomeMessage();
+  }, []);
+
+  useEffect(() => {
+    socket.on("forecast", parseForecast);
+    socket.on("connection", (data: any) => {
+      console.log("connection", data);
+      setWebhookUrl(data.url);
+    });
+    return () => {
+      socket.off("forecast");
+      socket.off("connection");
+    };
+  }, [currentSearchId, chartStockData]);
+
+  const parseForecast = (data: any) => {
+    if (data && !data.error && currentSearchId === data.job_id) {
+      const formattedForecast = data.forecast.map(({ timestamp, value }) => ({
+        forecast: value,
+        timestamp: timestampToNumberedDate(timestamp * 1000)
+      }));
+      setChartStockData([...chartStockData, ...formattedForecast]);
+      setLoadState("loaded");
+    }
+  };
 
   return (
-    <div>
-      <Search />
-    </div>
-  )
-}
+    <Wrapper>
+      <Search
+        emitChartData={setChartStockData}
+        emitJobId={setCurrentSearchId}
+        emitLoadState={setLoadState}
+        emitSearchDetails={setSearchDetails}
+        webhookUrl={webhookUrl}
+      />
+      <CrystalBallLoader loadState={loadState} emitLoadState={setLoadState} />
+      {chartStockData.length > 0 && (
+        <>
+          <SearchDetails
+            companyName={searchDetails.companyName}
+            companySymbol={searchDetails.companySymbol}
+            searchRange={searchDetails.searchRange}
+          ></SearchDetails>
+          <LineChart chartData={chartStockData}></LineChart>
+        </>
+      )}
+    </Wrapper>
+  );
+};
 
-export default App
+export default App;
