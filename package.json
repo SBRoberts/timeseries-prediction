@@ -9,7 +9,8 @@
     "start": "webpack-dev-server --content-base --open --hot --mode development",
     "server": "nodemon src/server",
     "build": "webpack --mode production",
-    "develop": "concurrently \" npm run server\" \"npm run start\""
+    "develop": "concurrently \" npm run server\" \"npm run start\"",
+    "generate": "plop"
   },
   "author": "Spencer Roberts",
   "license": "ISC",
@@ -49,6 +50,7 @@
     "jest": "^24.9.0",
     "ngrok": "^3.2.5",
     "nodemon": "^2.0.1",
+    "plop": "^2.5.3",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "react-inlinesvg": "^1.2.0",
