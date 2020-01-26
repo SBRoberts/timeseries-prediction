@@ -14,7 +14,6 @@ const DetailsContainer = styled.div`
 `;
 
 const DetailsString = styled.span`
-  font-family: "Heebo", sans-serif;
   font-size: 20px;
   margin: 0;
 `;

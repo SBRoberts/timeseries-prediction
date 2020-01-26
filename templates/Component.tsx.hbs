@@ -1,18 +1,13 @@
 import React from 'react'
 
-import {
-{{componentName}}
-} from './ComponentStyles'
+import { {{componentName}}Base  } from './{{componentName}}Styles'
 
-type Props = {};
+interface Props = {};
 
-const
-{{componentName}}
-= (props: Props) => {
+const {{componentName}} = (props: Props) => {
   return (
-<div></div>
-)
+    <{{componentName}}Base></{{componentName}}Base>
+  )
 }
 
-export default
-{{componentName}}
+export default {{componentName}}

@@ -13,7 +13,7 @@ module.exports = plop => {
         // Variable name for this input
         name: "componentName",
         // Prompt to display on command line
-        message: "What is your component name?"
+        message: "🤖 Component Name:"
       }
     ],
     actions: [
@@ -28,6 +28,11 @@ module.exports = plop => {
         path:
           "src/components/{{pascalCase componentName}}/{{pascalCase componentName}}Styles.ts",
         templateFile: "templates/ComponentStyles.ts.hbs"
+      },
+      {
+        type: "add",
+        path: "src/components/{{pascalCase componentName}}/index.ts",
+        templateFile: "templates/ComponentIndex.ts.hbs"
       }
     ]
   });

@@ -53,7 +53,6 @@ const Range = styled.input.attrs(props => ({
 
 const RangeLabel = styled.label`
   display: block;
-  font-family: "Heebo", sans-serif;
   width: 100%;
 `;
 

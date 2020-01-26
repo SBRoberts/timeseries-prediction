@@ -43,9 +43,8 @@ const LoadStateText = styled.h3`
   left: 0;
   width: 100%;
   text-align: center;
-  font-size: 20px;
+  font-size: 1rem;
   line-height: 1em;
-  font-family: "Heebo", sans-serif;
   /* width: 100%; */
   opacity: ${({ isVisible }: { isVisible: boolean }) => (isVisible ? 1 : 0)};
   transition: opacity 0.3s ease-out;

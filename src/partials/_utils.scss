@@ -1,0 +1,20 @@
+// Viewport
+$viewport-max: 1440;
+$viewport-min: 320;
+
+// Fonts
+$font-size-min: 16;
+$font-size-max: 20;
+$font-stack: "Heebo", sans-serif;
+
+@mixin dynamicFontSize(
+  $fontSizeMin: $font-size-min,
+  $fontSizeMax: $font-size-max,
+  $viewportMin: $viewport-min,
+  $viewportMax: $viewport-max
+) {
+  font-size: calc(
+    #{$fontSizeMin}px + (#{$fontSizeMax} - #{$fontSizeMin}) *
+      ((100vw - #{$viewportMin}px) / (#{$viewportMax} - #{$viewportMin}))
+  );
+}

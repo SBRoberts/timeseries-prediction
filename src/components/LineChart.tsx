@@ -30,7 +30,6 @@ const ChartContainer = styled.div`
 `;
 
 const XAxisTick = styled.p`
-  font-family: "Heebo", sans-serif;
   font-size: 10px;
   color: magenta;
 `;
@@ -39,7 +38,6 @@ export default function LineChart({ chartData }) {
   const [width, height] = useWindowSize();
 
   const baseTextStyle = {
-    fontFamily: "'Heebo', sans-serif",
     fontSize: 14
   };
 

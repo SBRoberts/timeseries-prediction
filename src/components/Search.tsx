@@ -49,7 +49,6 @@ const StyledTextInput = styled.input.attrs(props => ({
   value: props.value
 }))`
   width: 100%;
-  font-family: "Heebo", sans-serif;
   border: none;
   border-bottom: 2px solid black;
   font-size: 20px;

@@ -1,13 +1,15 @@
 const path = require("path");
 const HtmlWebPackPlugin = require("html-webpack-plugin");
-const CopyWebpackPlugin = require("copy-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+
+const isDevelopment = process.env.NODE_ENV === "development";
 
 module.exports = {
   entry: "./src/index.tsx",
   mode: "development",
   resolve: {
     // Add '.ts' and '.tsx' as resolvable extensions.
-    extensions: [".ts", ".tsx", ".js"]
+    extensions: [".ts", ".tsx", ".js", ".scss"]
   },
   output: {
     filename: "bundle.js",
@@ -42,7 +44,19 @@ module.exports = {
             loader: "file-loader"
           }
         ]
-        // options: {}
+      },
+      {
+        test: /\.s[ac]ss$/i,
+        use: [
+          // Creates `style` nodes from JS strings
+          process.env.NODE_ENV !== "production"
+            ? "style-loader"
+            : MiniCssExtractPlugin.loader,
+          // Translates CSS into CommonJS
+          "css-loader",
+          // Compiles Sass to CSS
+          "sass-loader"
+        ]
       }
     ]
   },
@@ -56,8 +70,13 @@ module.exports = {
       template: "./src/index.html",
       filename: "index.html",
       inject: false
+    }),
+    new MiniCssExtractPlugin({
+      // Options similar to the same options in webpackOptions.output
+      // both options are optional
+      filename: "[name].css",
+      chunkFilename: "[id].css"
     })
-    // new CopyWebpackPlugin([{ from: "./src/assets", to: "./assets" }])
   ]
   // externals: {
   //   react: 'React',
