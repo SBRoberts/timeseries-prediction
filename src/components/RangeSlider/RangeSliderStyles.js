@@ -1,18 +1,7 @@
-import React, { useState } from "react";
 import styled from "styled-components";
 import SVG from "react-inlinesvg";
 
-import EyeSvg from "../assets/witness.svg";
-import { transform } from "@babel/core";
-
-interface Props {
-  options: {
-    [key: string]: string;
-  };
-  emitCurrentOption: Function;
-}
-
-const Range = styled.input.attrs(props => ({
+export const Range = styled.input.attrs(props => ({
   min: 0,
   max: props.max || 100,
   step: props.step || 1
@@ -51,12 +40,12 @@ const Range = styled.input.attrs(props => ({
   }
 `;
 
-const RangeLabel = styled.label`
+export const RangeLabel = styled.label`
   display: block;
   width: 100%;
 `;
 
-const SliderContainer = styled.div`
+export const SliderContainer = styled.div`
   position: relative;
   display: flex;
   flex-wrap: wrap;
@@ -64,7 +53,7 @@ const SliderContainer = styled.div`
   justify-content: space-between;
 `;
 
-const Knob = styled(SVG).attrs(props => {
+export const Knob = styled(SVG).attrs(props => {
   currentValue: props.currentValue;
 })`
   position: absolute;
@@ -80,45 +69,10 @@ const Knob = styled(SVG).attrs(props => {
   padding: 0 5px;
 `;
 
-const SliderWrapper = styled.div`
+export const SliderWrapper = styled.div`
   display: flex;
   flex-wrap: wrap;
   flex-basis: 0;
   flex-grow: 1;
   align-self: flex-end;
 `;
-
-const RangeSlider = ({ options, emitCurrentOption }: Props) => {
-  const [currentValue, setCurrentValue] = useState("0");
-  const rangeLabels = Object.keys(options);
-  const rangeValues = Object.values(options);
-  const rangeMax = rangeLabels.length - 1;
-  emitCurrentOption(rangeValues[currentValue]);
-
-  const changeHandler = e => {
-    const { value } = e.target;
-    setCurrentValue(value);
-    emitCurrentOption(rangeValues[value]);
-  };
-
-  return (
-    <SliderWrapper>
-      <RangeLabel htmlFor="range">
-        Range: {rangeLabels[currentValue]}
-      </RangeLabel>
-      <SliderContainer>
-        <Range
-          max={rangeMax}
-          name="range"
-          type="range"
-          onChange={changeHandler}
-          value={currentValue}
-          list="rangeList"
-        />
-        <Knob src={EyeSvg} currentValue={currentValue} max={rangeMax} />
-      </SliderContainer>
-    </SliderWrapper>
-  );
-};
-
-export default RangeSlider;

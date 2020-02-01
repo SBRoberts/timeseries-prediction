@@ -1,57 +1,31 @@
 import React, { useEffect, useState } from "react";
-import SVG from "react-inlinesvg";
-import styled from "styled-components";
-import gsap, { TimelineMax, TweenMax } from "gsap";
-import CrstalBallSvg from "../assets/crystal-ball.svg";
-import COLORS from "../utils/colors";
 
-export type loadStateTypes = "loading" | "loaded" | "idle";
-const loadStates = ["loading", "loaded", "idle"];
+// Packages
+import { shallowEqual, useSelector, useDispatch } from "react-redux";
+import gsap, { TimelineMax } from "gsap";
+import CrstalBallSvg from "../../assets/crystal-ball.svg";
 
-type Props = {
-  loadState: loadStateTypes;
-  emitLoadState: Function;
-};
+// Utils
+import COLORS from "../../utils/colors";
 
-const CrystalBall = styled(SVG)`
-  min-width: 50px;
-  max-width: 5%;
-  transform-origin: center;
-  path {
-    transform-origin: center;
-  }
-`;
+// Constants
+import { LOAD_STATE } from "../../constants";
+const { idle, loading, loaded } = LOAD_STATE;
 
-const LoaderContainer = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 20px;
-`;
+// Redux Actions
+import { dispatchLoadState } from "../../store/actions";
 
-const LoadStateTextContainer = styled.div`
-  position: relative;
-  width: 100%;
-  height: 20px;
-  margin: 10px 0 0;
-`;
+// Styles
+import {
+  CrystalBall,
+  LoadStateText,
+  LoadStateTextContainer,
+  LoaderContainer
+} from "./CrystalBallLoaderStyles";
 
-const LoadStateText = styled.h3`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  text-align: center;
-  font-size: 1rem;
-  line-height: 1em;
-  /* width: 100%; */
-  opacity: ${({ isVisible }: { isVisible: boolean }) => (isVisible ? 1 : 0)};
-  transition: opacity 0.3s ease-out;
-  margin: 0;
-`;
-
-const CrystalBallLoader = ({ loadState, emitLoadState }: Props) => {
+const CrystalBallLoader = () => {
+  const dispatch = useDispatch();
+  const loadState = useSelector(state => state.loadState, shallowEqual);
   const [crystalBallRef, setCrystalBallRef] = useState(null);
 
   const useIdleAnimation = elements => {
@@ -78,18 +52,18 @@ const CrystalBallLoader = ({ loadState, emitLoadState }: Props) => {
   };
 
   const useLoadingAnimation = elements => {
-    const loadingTimeline: any = new TimelineMax({
+    const loadingTimeline = new TimelineMax({
       repeat: 1,
       yoyo: true,
       delay: 0.2,
       onComplete: function() {
-        if (loadState === "loading") {
+        if (loadState === loading) {
           this.seek(0).play();
         }
       }
     });
 
-    const loadingAnimation = loadingTimeline.staggerTo(
+    loadingTimeline.staggerTo(
       elements,
       0.4,
       {
@@ -104,16 +78,16 @@ const CrystalBallLoader = ({ loadState, emitLoadState }: Props) => {
   };
 
   const useLoadedAnimation = elements => {
-    const loadedTimeline: any = new TimelineMax({
+    const loadedTimeline = new TimelineMax({
       repeat: 3,
       yoyo: true,
       delay: 0.2,
       onComplete: function() {
-        emitLoadState("idle");
+        dispatchLoadState(dispatch, idle);
       }
     });
 
-    const loadedAnimation: any = loadedTimeline
+    loadedTimeline
       .to(elements, {
         fill: COLORS.chartPink,
         opacity: 1,
@@ -170,13 +144,13 @@ const CrystalBallLoader = ({ loadState, emitLoadState }: Props) => {
       const animationArr = [idleAnimation, loadingAnimation, loadedAnimation];
       useAnimationReset(crystalBallElArray, animationArr);
       switch (loadState) {
-        case "idle":
+        case idle:
           idleAnimation.seek(0).play();
           break;
-        case "loading":
+        case loading:
           loadingAnimation.seek(0).play();
           break;
-        case "loaded":
+        case loaded:
           loadedAnimation.seek(0).play();
           break;
         default:
@@ -194,13 +168,13 @@ const CrystalBallLoader = ({ loadState, emitLoadState }: Props) => {
     <LoaderContainer>
       <CrystalBall innerRef={e => setCrystalBallRef(e)} src={CrstalBallSvg} />
       <LoadStateTextContainer>
-        <LoadStateText isVisible={loadState === "idle"}>
+        <LoadStateText isVisible={loadState === idle}>
           Ready to search
         </LoadStateText>
-        <LoadStateText isVisible={loadState === "loading"}>
+        <LoadStateText isVisible={loadState === loading}>
           Generating prediction
         </LoadStateText>
-        <LoadStateText isVisible={loadState === "loaded"}>
+        <LoadStateText isVisible={loadState === loaded}>
           Behold the future!
         </LoadStateText>
       </LoadStateTextContainer>

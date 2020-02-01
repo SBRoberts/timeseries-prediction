@@ -1,12 +1,27 @@
 import React, { useEffect, useState } from "react";
+
+// Packages
+import { shallowEqual, useSelector, useDispatch } from "react-redux";
 import io from "socket.io-client";
 import styled from "styled-components";
-import Search from "./Search";
-import LineChart from "./LineChart";
-import SearchDetails from "./SearchDetails";
-import CrystalBallLoader, { loadStateTypes } from "./CrystalBallLoader";
 
-import { timestampToNumberedDate } from "../utils/formatTime";
+// Components
+import Search from "../Search";
+import LineChart from "../LineChart";
+import SearchDetails from "../SearchDetails";
+import CrystalBallLoader from "../CrystalBallLoader";
+
+// Utils
+import { timestampToNumberedDate } from "../../utils/formatTime";
+
+// Constants
+import { LOAD_STATE } from "../../constants";
+
+// Redux Actions
+import { dispatchLoadState } from "../../store/actions";
+
+// Styles
+import { Wrapper } from "./AppStyles";
 
 export const welcomeMessage = () => {
   console.info(
@@ -24,20 +39,16 @@ export const welcomeMessage = () => {
 
 const socket = io.connect("http://localhost:5000/");
 
-socket.on("connection", (data: any) => {
+socket.on("connection", data => {
   console.log("connection", data);
 });
 
-const Wrapper = styled.div`
-  width: 90vw;
-  margin: 0 auto;
-`;
-
 const App = () => {
+  const dispatch = useDispatch();
+  const loadState = useSelector(state => state.loadState, shallowEqual);
   const [webhookUrl, setWebhookUrl] = useState("");
   const [currentSearchId, setCurrentSearchId] = useState("");
   const [chartStockData, setChartStockData] = useState([]);
-  const [loadState, setLoadState] = useState<loadStateTypes>("idle");
   const [searchDetails, setSearchDetails] = useState({
     companyName: "",
     companySymbol: "",
@@ -46,28 +57,27 @@ const App = () => {
 
   useEffect(() => {
     welcomeMessage();
+    socket.on("connection", data => {
+      console.log("connection", data);
+      setWebhookUrl(data.url);
+    });
   }, []);
 
   useEffect(() => {
     socket.on("forecast", parseForecast);
-    socket.on("connection", (data: any) => {
-      console.log("connection", data);
-      setWebhookUrl(data.url);
-    });
     return () => {
       socket.off("forecast");
-      socket.off("connection");
     };
   }, [currentSearchId, chartStockData]);
 
-  const parseForecast = (data: any) => {
+  const parseForecast = data => {
     if (data && !data.error && currentSearchId === data.job_id) {
       const formattedForecast = data.forecast.map(({ timestamp, value }) => ({
         forecast: value,
         timestamp: timestampToNumberedDate(timestamp * 1000)
       }));
       setChartStockData([...chartStockData, ...formattedForecast]);
-      setLoadState("loaded");
+      dispatchLoadState(dispatch, LOAD_STATE.loaded);
     }
   };
 
@@ -76,11 +86,10 @@ const App = () => {
       <Search
         emitChartData={setChartStockData}
         emitJobId={setCurrentSearchId}
-        emitLoadState={setLoadState}
         emitSearchDetails={setSearchDetails}
         webhookUrl={webhookUrl}
       />
-      <CrystalBallLoader loadState={loadState} emitLoadState={setLoadState} />
+      <CrystalBallLoader />
       {chartStockData.length > 0 && (
         <>
           <SearchDetails

@@ -1,0 +1,19 @@
+import React from 'react'
+import { shallowEqual, useSelector, useDispatch } from "react-redux";
+
+// Components
+
+// Constants
+import { ACTIONS } from "../constants";
+
+// Styles
+import { {{componentName}}Base  } from './{{componentName}}Styles'
+
+const {{componentName}} = (props) => {
+  const dispatch = useDispatch();
+  return (
+    <{{componentName}}Base></{{componentName}}Base>
+  )
+}
+
+export default {{componentName}}

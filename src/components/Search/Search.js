@@ -1,87 +1,44 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
+
+// Packages
+import { useDispatch } from "react-redux";
 import axios from "axios";
 import styled from "styled-components";
+import RangeSlider from "../RangeSlider";
 
+// Utils
 import {
   getSymbolHistory,
   getClosestMatchesFromInput,
   getTechnicalAnalysisFromSymbol
-} from "../utils/searchStocks";
+} from "../../utils/searchStocks";
 
 import {
-  timestampToHumanDate,
   timestampToUnix,
   timestampToNumberedDate
-} from "../utils/formatTime";
-
-import MatchedCompanies from "./DropdownList";
-import RangeSlider from "./RangeSlider";
-import DropdownList from "./DropdownList";
-
-// Types
-interface stockHistoryInterface {
-  [index: number]: any;
-}
-
-type Props = {
-  emitChartData: Function;
-  emitJobId: Function;
-  emitLoadState: Function;
-  emitSearchDetails: Function;
-  webhookUrl: string;
-};
+} from "../../utils/formatTime";
 
 // Constants
-// const webhookUrl = "https://e5da19c9.ngrok.io/forecast";
-const stockHistoryRanges = {
-  "1 Month": "1m",
-  "3 Months": "3m",
-  "6 Months": "6m"
-};
+import { LOAD_STATE, SEARCH_RANGE } from "../../constants";
+const { loading } = LOAD_STATE;
 
-// Styled Components
-const StyledTextInput = styled.input.attrs(props => ({
-  ref: props.ref,
-  type: "text",
-  list: props.list,
-  placeholder: "Predict future stock prices for...",
-  onChange: props.onChange,
-  value: props.value
-}))`
-  width: 100%;
-  border: none;
-  border-bottom: 2px solid black;
-  font-size: 20px;
-`;
+// Redux Actions
+import { dispatchLoadState } from "../../store/actions";
 
-const SearchContainer = styled.div`
-  display: flex;
-  width: 100%;
-`;
-
-const SearchForm = styled.form.attrs(props => ({
-  onSubmit: props.onSubmit
-}))`
-  display: flex;
-  flex-basis: 0;
-  background: #000;
-  flex-grow: 2;
-`;
+// Styles
+import { StyledTextInput, SearchContainer, SearchForm } from "./SearchStyles";
 
 const Search = ({
   emitChartData,
   emitJobId,
-  emitLoadState,
   emitSearchDetails,
   webhookUrl
-}: Props) => {
-  // const [searchMatches, setSearchMatches] = useState([]);
+}) => {
+  const dispatch = useDispatch();
 
   const [searchSymbol, setSearchSymbol] = useState("");
-  const [stockHistory, setStockHistory] = useState<stockHistoryInterface[any]>(
-    []
-  );
-  const [selectedRange, setSelectedRange] = useState("3m");
+  const [stockHistory, setStockHistory] = useState([]);
+  const [selectedRange, setSelectedRange] = useState(SEARCH_RANGE["1m"]);
   const searchInputEl = useRef(null);
   const datalistId = "_stockDatalistId";
 
@@ -125,12 +82,7 @@ const Search = ({
       data: forecastPayload
     });
     emitJobId(response.data.job_id);
-    emitLoadState("loading");
-  };
-
-  const selectCompany = company => {
-    setSearchSymbol(company.symbol);
-    searchInputEl.current.focus();
+    dispatchLoadState(dispatch, loading);
   };
 
   const handleSubmit = async e => {
@@ -144,9 +96,8 @@ const Search = ({
 
     setSearchSymbol(matchedCompany.symbol);
     setStockHistory(stockHistory);
-    const searchRangeLabel = Object.keys(stockHistoryRanges)[
-      Object.values(stockHistoryRanges).indexOf(selectedRange)
-    ];
+
+    const searchRangeLabel = SEARCH_RANGE[selectedRange];
     emitSearchDetails({
       companyName: matchedCompany.name,
       companySymbol: matchedCompany.symbol,
@@ -165,7 +116,7 @@ const Search = ({
         />
       </SearchForm>
       <RangeSlider
-        options={stockHistoryRanges}
+        options={SEARCH_RANGE}
         emitCurrentOption={setSelectedRange}
       />
     </SearchContainer>

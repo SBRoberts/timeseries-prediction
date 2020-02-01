@@ -20,19 +20,19 @@ module.exports = plop => {
       {
         type: "add",
         path:
-          "src/components/{{pascalCase componentName}}/{{pascalCase componentName}}.tsx",
-        templateFile: "templates/Component.tsx.hbs"
+          "src/components/{{pascalCase componentName}}/{{pascalCase componentName}}.js",
+        templateFile: "templates/Component.js.hbs"
       },
       {
         type: "add",
         path:
-          "src/components/{{pascalCase componentName}}/{{pascalCase componentName}}Styles.ts",
-        templateFile: "templates/ComponentStyles.ts.hbs"
+          "src/components/{{pascalCase componentName}}/{{pascalCase componentName}}Styles.js",
+        templateFile: "templates/ComponentStyles.js.hbs"
       },
       {
         type: "add",
-        path: "src/components/{{pascalCase componentName}}/index.ts",
-        templateFile: "templates/ComponentIndex.ts.hbs"
+        path: "src/components/{{pascalCase componentName}}/index.js",
+        templateFile: "templates/ComponentIndex.js.hbs"
       }
     ]
   });

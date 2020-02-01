@@ -1,5 +1,5 @@
-import React, { useState, useLayoutEffect, useEffect } from "react";
-import styled from "styled-components";
+import React, { useState, useLayoutEffect } from "react";
+
 import {
   LineChart as ReLineChart,
   ResponsiveContainer,
@@ -8,7 +8,10 @@ import {
   YAxis,
   Tooltip
 } from "recharts";
-import COLORS from "../utils/colors";
+
+import COLORS from "../../utils/colors";
+
+import { ChartContainer } from "./LineChartStyles";
 
 function useWindowSize() {
   const [size, setSize] = useState([0, 0]);
@@ -22,17 +25,6 @@ function useWindowSize() {
   }, []);
   return size;
 }
-
-const ChartContainer = styled.div`
-  padding: 20px;
-  width: 100%;
-  box-sizing: border-box;
-`;
-
-const XAxisTick = styled.p`
-  font-size: 10px;
-  color: magenta;
-`;
 
 export default function LineChart({ chartData }) {
   const [width, height] = useWindowSize();

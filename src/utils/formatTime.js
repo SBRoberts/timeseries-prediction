@@ -11,5 +11,5 @@ export const timestampToNumberedDate = unixTimeStamp => {
   return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
 };
 
-export const timestampToUnix = (timestamp: string) =>
+export const timestampToUnix = timestamp =>
   parseInt((new Date(timestamp).getTime() / 1000).toFixed(0));
